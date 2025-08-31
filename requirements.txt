@@ -1,0 +1,15 @@
+# Jetson Orin PWM LED 控制项目依赖
+
+# GPIO 控制库
+Jetson.GPIO>=2.0.0
+
+# 测试框架
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# 开发工具
+flake8>=5.0.0
+black>=22.0.0
+
+# 类型检查
+mypy>=1.0.0
