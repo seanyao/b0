@@ -31,7 +31,7 @@ def demo_pwm_basic():
     try:
         # 创建 PWM 控制器
         print("\n1. 创建 PWM 控制器")
-        pwm = PWMControl(pin=33, frequency=1000)
+        pwm = PWMControl(pin=7, frequency=1000)
         print(f"   PWM 控制器已创建: {pwm}")
         
         # 启动 PWM
@@ -203,7 +203,7 @@ def demo_context_manager():
     try:
         # 使用 PWM 上下文管理器
         print("\n1. PWM 上下文管理器")
-        with PWMControl(pin=33, frequency=2000) as pwm:
+        with PWMControl(pin=7, frequency=1000) as pwm:
             print(f"   PWM 控制器: {pwm}")
             pwm.start()
             
@@ -217,7 +217,7 @@ def demo_context_manager():
         
         # 使用 LED 上下文管理器
         print("\n2. LED 上下文管理器")
-        with LEDControl(pin=33) as led:
+        with LEDControl(pin=7) as led:
             print(f"   LED 控制器: {led}")
             
             # 简单的特效组合

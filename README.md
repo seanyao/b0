@@ -79,7 +79,7 @@ b0/
 from jetson import LEDControl
 
 # 创建 LED 控制器
-with LEDControl(pin=33) as led:
+with LEDControl(pin=7) as led:
     led.on(75)  # 75% 亮度
     led.fade_to(25, duration=2)  # 2秒渐变到25%
     led.blink(times=5, interval=0.5)  # 闪烁5次
@@ -90,17 +90,17 @@ with LEDControl(pin=33) as led:
 
 ```bash
 # 打开LED，设置75%亮度
-python src/jetson/cli.py --pin 33 --on --brightness 75
+python src/jetson/cli.py --pin 7 --on --brightness 75
 
 # 渐变效果
-python src/jetson/cli.py --pin 33 --fade-to 25 --duration 3
+python src/jetson/cli.py --pin 7 --fade-to 25 --duration 3
 
 # 闪烁效果
-python src/jetson/cli.py --pin 33 --blink --times 5 --interval 0.5
+python src/jetson/cli.py --pin 7 --blink --times 5 --interval 0.5
 
 # 呼吸灯效果
-python src/jetson/cli.py --pin 33 --breathe --period 2
+python src/jetson/cli.py --pin 7 --breathe --period 2
 
 # 交互模式
-python src/jetson/cli.py --pin 33 --interactive
+python src/jetson/cli.py --pin 7 --interactive
 ```

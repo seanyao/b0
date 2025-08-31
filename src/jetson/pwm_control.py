@@ -28,7 +28,7 @@ from typing import Optional
 try:
     import Jetson.GPIO as GPIO
     # 测试是否可以正常使用
-    GPIO.setmode(GPIO.BCM)
+    GPIO.setmode(GPIO.BOARD)
     GPIO.cleanup()
 except (ImportError, RuntimeError, Exception):
     # 在非 Jetson 环境下或权限不足时使用 Mock 对象
@@ -37,7 +37,7 @@ except (ImportError, RuntimeError, Exception):
     
     class MockGPIO:
         """Mock GPIO 类，用于开发和测试"""
-        BCM = 'BCM'
+        BOARD = 'BOARD'
         OUT = 'OUT'
         
         @staticmethod
@@ -84,8 +84,8 @@ class PWMControl:
     提供 Jetson Orin GPIO PWM 控制功能。
     """
     
-    # 支持的 GPIO 引脚 (Jetson Orin)
-    VALID_PINS = [32, 33, 35, 37, 38, 40]
+    # 支持的 GPIO 引脚 (Jetson Orin BOARD 模式)
+    VALID_PINS = [7]  # 经测试，只有引脚7在当前系统上有效
     
     # 频率范围 (Hz)
     MIN_FREQUENCY = 100
@@ -133,7 +133,7 @@ class PWMControl:
         初始化 GPIO 设置
         """
         try:
-            GPIO.setmode(GPIO.BCM)
+            GPIO.setmode(GPIO.BOARD)
             GPIO.setup(self.pin, GPIO.OUT)
             logger.debug(f"GPIO pin {self.pin} configured as output")
         except Exception as e:
@@ -342,7 +342,7 @@ if __name__ == '__main__':
     
     try:
         # 创建 PWM 控制器
-        with PWMControl(pin=33, frequency=1000) as pwm:
+        with PWMControl(pin=7, frequency=1000) as pwm:
             print(f"Created: {pwm}")
             
             # 启动 PWM
