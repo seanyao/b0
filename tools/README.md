@@ -4,30 +4,21 @@
 
 ## 工具列表
 
-### 1. `git_commit.py` - 智能 Git 提交助手
-自动分析代码变更并生成合适的 commit message，支持一键提交和推送。
+### 1. `git_cp.py` - 智能 Git 提交助手
+自动分析代码变更并生成合适的 commit message，一键执行 add、commit 和 push。
 
 **使用方法：**
 ```bash
-# 交互模式（推荐）
-python tools/git_commit.py
-
-# 查看当前状态
-python tools/git_commit.py status
-
-# 智能提交
-python tools/git_commit.py commit
-
-# 自定义提交信息
-python tools/git_commit.py commit "你的提交信息"
+# 直接执行，无需任何参数
+python tools/git_cp.py
 ```
 
 **功能特点：**
 - 自动分析文件变更类型（修改、新增、删除、重命名、未跟踪）
 - 智能分类文件（文档、源代码、测试、工具、配置等）
 - 生成简洁有效的 commit message
-- 支持一键 add、commit、push 操作
-- 交互式操作，安全确认
+- 一键执行 add、commit、push 操作
+- 无需交互确认，直接执行
 
 ### 2. `tool_gpio_7.py` - GPIO 测试工具
 测试 GPIO 引脚的基本功能。
