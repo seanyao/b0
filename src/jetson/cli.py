@@ -78,8 +78,8 @@ class LEDControlCLI:
         parser.add_argument(
             '--pin', '-p',
             type=int,
-            default=33,
-            help='GPIO 引脚号 (默认: 33)'
+            default=15,
+            help='GPIO 引脚号 (默认: 15)'
         )
         
         parser.add_argument(
@@ -94,6 +94,12 @@ class LEDControlCLI:
             type=float,
             default=100.0,
             help='最大亮度限制 (0-100%%) (默认: 100)'
+        )
+        
+        parser.add_argument(
+            '--invert-logic',
+            action='store_true',
+            help='使用反向逻辑 (高电平=LED灭，低电平=LED亮)'
         )
         
         # 控制命令
@@ -207,7 +213,8 @@ class LEDControlCLI:
             self.led_control = LEDControl(
                 pin=args.pin,
                 frequency=args.frequency,
-                max_brightness=args.max_brightness
+                max_brightness=args.max_brightness,
+                invert_logic=args.invert_logic
             )
             
             if args.verbose:
@@ -515,7 +522,7 @@ def main():
         args = parser.parse_args()
         
         # 验证参数
-        if args.pin not in [32, 33, 35, 37, 38, 40]:
+        if args.pin not in [15, 33]:
             print(f"警告: GPIO 引脚 {args.pin} 可能不支持 PWM")
         
         if not (0 <= args.max_brightness <= 100):

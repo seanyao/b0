@@ -46,7 +46,7 @@ class LEDControl:
     基于 PWM 控制实现 LED 亮度调节和特效。
     """
     
-    def __init__(self, pin: int, frequency: int = 1000, max_brightness: float = 100.0):
+    def __init__(self, pin: int, frequency: int = 1000, max_brightness: float = 100.0, invert_logic: bool = False):
         """
         初始化 LED 控制器
         
@@ -54,6 +54,9 @@ class LEDControl:
             pin: GPIO 引脚号
             frequency: PWM 频率 (Hz)，默认 1000Hz
             max_brightness: 最大亮度限制 (0-100%)，默认 100%
+            invert_logic: 是否使用反向逻辑，默认 False
+                         True: 高电平=LED灭，低电平=LED亮
+                         False: 高电平=LED亮，低电平=LED灭
             
         Raises:
             ValueError: 引脚号、频率或最大亮度无效
@@ -65,17 +68,19 @@ class LEDControl:
         self.pin = pin
         self.frequency = frequency
         self.max_brightness = max_brightness
+        self.invert_logic = invert_logic
         self.current_brightness = 0.0
         self.is_on = False
         
         # 创建 PWM 控制器
-        self._pwm_control = PWMControl(pin=pin, frequency=frequency)
+        self._pwm_control = PWMControl(pin=pin, frequency=frequency, invert_logic=invert_logic)
         
         # 动画控制
         self._animation_thread: Optional[threading.Thread] = None
         self._stop_animation = threading.Event()
         
-        logger.info(f"LED Controller initialized: Pin={pin}, Freq={frequency}Hz, MaxBrightness={max_brightness}%")
+        logic_desc = "反向逻辑" if invert_logic else "正向逻辑"
+        logger.info(f"LED Controller initialized: Pin={pin}, Freq={frequency}Hz, MaxBrightness={max_brightness}%, {logic_desc}")
     
     def on(self, brightness: Optional[float] = None) -> bool:
         """

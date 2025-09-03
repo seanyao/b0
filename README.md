@@ -40,8 +40,11 @@ b0/
 ├── tests/                 # 测试目录
 │   ├── test_pwm.py       # PWM 控制测试
 │   └── test_led.py       # LED 控制测试
-├── examples/              # 使用示例
-│   └── basic_usage.py    # 基本使用示例
+├── tools/                 # 测试工具和示例
+│   ├── basic_usage.py    # 基本使用示例
+│   ├── tool_gpio_7.py   # GPIO 测试工具
+│   ├── tool_led_pwm.py  # LED PWM 测试工具
+│   └── tool_servo_pwm.py # 舵机 PWM 测试工具
 └── requirements.txt       # Python 依赖
 ```
 
@@ -49,7 +52,7 @@ b0/
 
 1. 安装依赖：`pip install -r requirements.txt`
 2. 查看硬件连接：`docs/hardware.md`
-3. 运行基本示例：`python examples/basic_usage.py`
+3. 运行基本示例：`python tools/basic_usage.py`
 4. 运行测试：`python -m pytest tests/`
 
 ## 开发进度
@@ -79,7 +82,7 @@ b0/
 from jetson import LEDControl
 
 # 创建 LED 控制器
-with LEDControl(pin=7) as led:
+with LEDControl(pin=32) as led:
     led.on(75)  # 75% 亮度
     led.fade_to(25, duration=2)  # 2秒渐变到25%
     led.blink(times=5, interval=0.5)  # 闪烁5次
@@ -90,17 +93,20 @@ with LEDControl(pin=7) as led:
 
 ```bash
 # 打开LED，设置75%亮度
-python src/jetson/cli.py --pin 7 --on --brightness 75
+python src/jetson/cli.py --pin 32 --on --brightness 75
+
+# 如果LED不亮，尝试反向逻辑
+python src/jetson/cli.py --pin 32 --invert-logic --on --brightness 75
 
 # 渐变效果
-python src/jetson/cli.py --pin 7 --fade-to 25 --duration 3
+python src/jetson/cli.py --pin 32 --fade-to 25 --duration 3
 
 # 闪烁效果
-python src/jetson/cli.py --pin 7 --blink --times 5 --interval 0.5
+python src/jetson/cli.py --pin 32 --blink --times 5 --interval 0.5
 
 # 呼吸灯效果
-python src/jetson/cli.py --pin 7 --breathe --period 2
+python src/jetson/cli.py --pin 32 --breathe --period 2
 
 # 交互模式
-python src/jetson/cli.py --pin 7 --interactive
+python src/jetson/cli.py --pin 32 --interactive
 ```

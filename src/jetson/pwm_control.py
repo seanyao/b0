@@ -85,7 +85,7 @@ class PWMControl:
     """
     
     # 支持的 GPIO 引脚 (Jetson Orin BOARD 模式)
-    VALID_PINS = [7]  # 经测试，只有引脚7在当前系统上有效
+    VALID_PINS = [15, 33]  # 经测试，引脚15和33支持PWM功能，引脚32有硬件问题
     
     # 频率范围 (Hz)
     MIN_FREQUENCY = 100
@@ -95,13 +95,16 @@ class PWMControl:
     MIN_DUTY_CYCLE = 0
     MAX_DUTY_CYCLE = 100
     
-    def __init__(self, pin: int, frequency: int = 1000):
+    def __init__(self, pin: int, frequency: int = 1000, invert_logic: bool = False):
         """
         初始化 PWM 控制器
         
         Args:
             pin: GPIO 引脚号
             frequency: PWM 频率 (Hz)，默认 1000Hz
+            invert_logic: 是否使用反向逻辑，默认 False
+                         True: 高电平=LED灭，低电平=LED亮
+                         False: 高电平=LED亮，低电平=LED灭
             
         Raises:
             ValueError: 引脚号或频率无效
@@ -119,6 +122,7 @@ class PWMControl:
         
         self.pin = pin
         self.frequency = frequency
+        self.invert_logic = invert_logic
         self.duty_cycle = 0
         self.is_started = False
         self._pwm_instance: Optional[GPIO.PWM] = None
@@ -126,7 +130,8 @@ class PWMControl:
         # 初始化 GPIO
         self._init_gpio()
         
-        logger.info(f"PWM Controller initialized: Pin={pin}, Frequency={frequency}Hz")
+        logic_desc = "反向逻辑" if invert_logic else "正向逻辑"
+        logger.info(f"PWM Controller initialized: Pin={pin}, Frequency={frequency}Hz, {logic_desc}")
     
     def _init_gpio(self) -> None:
         """
@@ -212,10 +217,13 @@ class PWMControl:
         
         try:
             if self._pwm_instance:
-                self._pwm_instance.ChangeDutyCycle(duty_cycle)
+                # 应用反向逻辑
+                actual_duty_cycle = (100 - duty_cycle) if self.invert_logic else duty_cycle
+                self._pwm_instance.ChangeDutyCycle(actual_duty_cycle)
                 self.duty_cycle = duty_cycle
                 
-                logger.debug(f"Duty cycle set to {duty_cycle}%")
+                logic_desc = "反向" if self.invert_logic else "正向"
+                logger.debug(f"Duty cycle set to {duty_cycle}% ({logic_desc}逻辑)")
                 return True
             else:
                 logger.error("PWM instance not available")

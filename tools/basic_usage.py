@@ -31,7 +31,7 @@ def demo_pwm_basic():
     try:
         # 创建 PWM 控制器
         print("\n1. 创建 PWM 控制器")
-        pwm = PWMControl(pin=7, frequency=1000)
+        pwm = PWMControl(pin=32, frequency=1000)
         print(f"   PWM 控制器已创建: {pwm}")
         
         # 启动 PWM
@@ -142,7 +142,7 @@ def demo_led_effects():
     try:
         # 创建 LED 控制器
         print("\n1. 创建 LED 控制器")
-        led = LEDControl(pin=33)
+        led = LEDControl(pin=32)
         print(f"   LED 控制器已创建: {led}")
         
         # 渐变效果

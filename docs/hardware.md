@@ -40,7 +40,7 @@ Jetson Orin                    面包板
 ### 1. Jetson Orin 连接
 
 1. **PWM 输出引脚**：使用 GPIO 引脚作为 PWM 输出
-   - 推荐使用 Pin 7 (GPIO 4) 作为 PWM 输出
+   - 推荐使用 Pin 32 (GPIO 12) 作为 PWM 输出
    - 连接到面包板上的 LED 正极
 
 2. **接地连接**：
@@ -75,7 +75,7 @@ Jetson Orin                    面包板
 
 | 物理引脚 | GPIO 编号 | 功能 | 用途     |
 |---------|----------|------|---------|
-| Pin 7   | GPIO 4   | PWM  | LED 控制 |
+| Pin 32  | GPIO 12  | PWM  | LED 控制 |
 | Pin 6   | GND      | 接地 | 公共接地  |
 
 ## 安全注意事项
@@ -116,6 +116,12 @@ Jetson Orin                    面包板
    - 检查 LED 极性
    - 检查限流电阻连接
    - 验证 GPIO 引脚配置
+   - **尝试使用反向逻辑**：如果LED连接后不亮，可能是极性接反，使用 `--invert-logic` 参数
+
+2. **LED 行为异常**
+   - 如果拔掉GND线时LED反而亮了，说明需要反向逻辑
+   - 使用 `--invert-logic` 参数运行命令
+   - 检查LED的正负极连接是否正确
 
 2. **LED 过亮或烧毁**
    - 检查限流电阻值
@@ -137,9 +143,9 @@ Jetson Orin                    面包板
 
 ### 多 LED 控制
 如需控制多个 LED，可以使用多个 GPIO 引脚：
+- Pin 15 (GPIO 22)
 - Pin 32 (GPIO 12)
-- Pin 35 (GPIO 19)
-- Pin 37 (GPIO 26)
+- Pin 33 (GPIO 13)
 
 ### 外部驱动器
 对于大功率 LED，建议使用外部驱动器：
