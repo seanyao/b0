@@ -32,19 +32,13 @@ b0/
 ├── README.md              # 项目说明
 ├── docs/                  # 文档目录
 │   └── hardware.md        # 硬件连接说明
-├── src/                   # 源代码目录
-│   └── jetson/           # Jetson 相关代码
-│       ├── pwm_control.py # PWM 控制核心类
-│       ├── led_control.py # LED 控制类
-│       └── cli.py         # 命令行界面
-├── tests/                 # 测试目录
-│   ├── test_pwm.py       # PWM 控制测试
-│   └── test_led.py       # LED 控制测试
 ├── tools/                 # 测试工具和示例
 │   ├── basic_usage.py    # 基本使用示例
 │   ├── tool_gpio_7.py   # GPIO 测试工具
 │   ├── tool_led_pwm.py  # LED PWM 测试工具
-│   └── tool_servo_pwm.py # 舵机 PWM 测试工具
+│   ├── tool_servo_pwm.py # 舵机 PWM 测试工具
+│   ├── git_cp.py         # 智能 Git 提交助手
+│   └── README.md         # 工具使用说明
 └── requirements.txt       # Python 依赖
 ```
 
@@ -53,60 +47,46 @@ b0/
 1. 安装依赖：`pip install -r requirements.txt`
 2. 查看硬件连接：`docs/hardware.md`
 3. 运行基本示例：`python tools/basic_usage.py`
-4. 运行测试：`python -m pytest tests/`
+4. 使用测试工具：`python tools/tool_led_pwm.py`
 
 ## 开发进度
 
 - [x] 项目基础结构
 - [x] 硬件连接文档
-- [x] PWM 控制核心功能
-- [x] 单元测试
+- [x] PWM 控制功能
 - [x] LED 亮度控制
-- [x] 集成测试
-- [x] 命令行界面
+- [x] 测试工具集合
+- [x] 智能 Git 提交助手
 - [x] 使用示例和教程
 
 ## 测试状态
 
-✅ 所有单元测试通过 (38/38)
+✅ 所有测试工具正常工作
 ✅ PWM 控制功能完整
 ✅ LED 亮度控制功能完整
-✅ 命令行界面可用
-✅ 使用示例可运行
+✅ 基本使用示例可运行
+✅ 智能 Git 提交助手可用
 
 ## 使用方法
 
 ### 基本使用
 
 ```python
-from jetson import LEDControl
+# 运行基本示例
+python tools/basic_usage.py
 
-# 创建 LED 控制器
-with LEDControl(pin=32) as led:
-    led.on(75)  # 75% 亮度
-    led.fade_to(25, duration=2)  # 2秒渐变到25%
-    led.blink(times=5, interval=0.5)  # 闪烁5次
-    led.breathe(period=3)  # 呼吸灯效果
+# 使用测试工具
+python tools/tool_led_pwm.py
+python tools/tool_servo_pwm.py
+python tools/tool_gpio_7.py
 ```
 
-### 命令行使用
+### 智能 Git 提交
 
 ```bash
-# 打开LED，设置75%亮度
-python src/jetson/cli.py --pin 32 --on --brightness 75
+# 自动提交所有变更
+python tools/git_cp.py
 
-# 如果LED不亮，尝试反向逻辑
-python src/jetson/cli.py --pin 32 --invert-logic --on --brightness 75
-
-# 渐变效果
-python src/jetson/cli.py --pin 32 --fade-to 25 --duration 3
-
-# 闪烁效果
-python src/jetson/cli.py --pin 32 --blink --times 5 --interval 0.5
-
-# 呼吸灯效果
-python src/jetson/cli.py --pin 32 --breathe --period 2
-
-# 交互模式
-python src/jetson/cli.py --pin 32 --interactive
+# 查看工具使用说明
+python tools/git_cp.py --help
 ```

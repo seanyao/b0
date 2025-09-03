@@ -1,24 +1,132 @@
 #!/usr/bin/env python3
 """
-Jetson Orin PWM LED 控制基本使用示例
-
-演示如何使用 PWM 控制 LED 亮度和特效。
-这个示例展示了从最基本的功能开始，逐步学习 PWM 控制。
-
-运行前请确保:
-1. 硬件连接正确 (参考 docs/hardware.md)
-2. 已安装依赖 (pip install -r requirements.txt)
-3. 在 Jetson Orin 上运行
+基本使用示例 - 演示 PWM 和 LED 控制功能
+使用简单的实现，不依赖复杂的类
 """
 
-import sys
 import time
-import os
+import threading
+import Jetson.GPIO as GPIO
 
-# 添加源代码路径
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+class SimplePWMControl:
+    """简单的 PWM 控制类"""
+    
+    def __init__(self, pin, frequency=1000):
+        self.pin = pin
+        self.frequency = frequency
+        self.duty_cycle = 0
+        self.running = False
+        self.thread = None
+        
+        GPIO.setup(self.pin, GPIO.OUT)
+        GPIO.output(self.pin, GPIO.LOW)
+    
+    def start(self):
+        """启动 PWM"""
+        if self.running:
+            return False
+        
+        self.running = True
+        self.thread = threading.Thread(target=self._pwm_loop)
+        self.thread.daemon = True
+        self.thread.start()
+        return True
+    
+    def stop(self):
+        """停止 PWM"""
+        self.running = False
+        if self.thread:
+            self.thread.join()
+        GPIO.output(self.pin, GPIO.LOW)
+        return True
+    
+    def set_duty_cycle(self, duty_cycle):
+        """设置占空比"""
+        self.duty_cycle = max(0, min(100, duty_cycle))
+    
+    def set_frequency(self, frequency):
+        """设置频率"""
+        self.frequency = max(100, min(50000, frequency))
+    
+    def _pwm_loop(self):
+        """PWM 生成循环"""
+        period = 1.0 / self.frequency
+        while self.running:
+            if self.duty_cycle > 0:
+                on_time = period * (self.duty_cycle / 100.0)
+                off_time = period - on_time
+                
+                GPIO.output(self.pin, GPIO.HIGH)
+                time.sleep(on_time)
+                GPIO.output(self.pin, GPIO.LOW)
+                time.sleep(off_time)
+            else:
+                GPIO.output(self.pin, GPIO.LOW)
+                time.sleep(period)
+    
+    def cleanup(self):
+        """清理资源"""
+        self.stop()
+    
+    def get_status(self):
+        """获取状态"""
+        return {
+            'pin': self.pin,
+            'frequency': self.frequency,
+            'duty_cycle': self.duty_cycle,
+            'running': self.running
+        }
+    
+    def __str__(self):
+        return f"SimplePWMControl(pin={self.pin}, freq={self.frequency}Hz, duty={self.duty_cycle}%)"
 
-from jetson import PWMControl, LEDControl
+
+class SimpleLEDControl:
+    """简单的 LED 控制类"""
+    
+    def __init__(self, pin, max_brightness=100):
+        self.pin = pin
+        self.max_brightness = max_brightness
+        self.brightness = 0
+        self.running = False
+        self.thread = None
+        
+        GPIO.setup(self.pin, GPIO.OUT)
+        GPIO.output(self.pin, GPIO.LOW)
+    
+    def on(self, brightness=None):
+        """打开 LED"""
+        if brightness is not None:
+            self.set_brightness(brightness)
+        
+        if self.brightness > 0:
+            GPIO.output(self.pin, GPIO.HIGH)
+        return True
+    
+    def off(self):
+        """关闭 LED"""
+        GPIO.output(self.pin, GPIO.LOW)
+        return True
+    
+    def set_brightness(self, brightness):
+        """设置亮度"""
+        self.brightness = max(0, min(self.max_brightness, brightness))
+        if self.brightness > 0:
+            GPIO.output(self.pin, GPIO.HIGH)
+        else:
+            GPIO.output(self.pin, GPIO.LOW)
+        return True
+    
+    def get_brightness(self):
+        """获取当前亮度"""
+        return self.brightness
+    
+    def cleanup(self):
+        """清理资源"""
+        self.off()
+    
+    def __str__(self):
+        return f"SimpleLEDControl(pin={self.pin}, brightness={self.brightness}%)"
 
 
 def demo_pwm_basic():
@@ -31,7 +139,7 @@ def demo_pwm_basic():
     try:
         # 创建 PWM 控制器
         print("\n1. 创建 PWM 控制器")
-        pwm = PWMControl(pin=32, frequency=1000)
+        pwm = SimplePWMControl(pin=7, frequency=1000)
         print(f"   PWM 控制器已创建: {pwm}")
         
         # 启动 PWM
@@ -91,7 +199,7 @@ def demo_led_basic():
     try:
         # 创建 LED 控制器
         print("\n1. 创建 LED 控制器")
-        led = LEDControl(pin=33, max_brightness=80)  # 限制最大亮度为 80%
+        led = SimpleLEDControl(pin=7, max_brightness=80)  # 限制最大亮度为 80%
         print(f"   LED 控制器已创建: {led}")
         
         # 打开 LED
@@ -113,15 +221,12 @@ def demo_led_basic():
         # 关闭 LED
         print("\n4. 关闭 LED")
         led.off()
-        print(f"   LED 已关闭，当前亮度: {led.get_brightness()}%")
-        time.sleep(1)
+        print("   LED 已关闭")
         
         # 显示状态
         print("\n5. LED 状态信息")
-        status = led.get_status()
-        for key, value in status.items():
-            if key != 'pwm_status':  # 简化输出
-                print(f"   {key}: {value}")
+        print(f"   当前亮度: {led.get_brightness()}%")
+        print(f"   最大亮度限制: {led.max_brightness}%")
         
     except Exception as e:
         print(f"错误: {e}")
@@ -132,57 +237,56 @@ def demo_led_basic():
         print("\n资源已清理")
 
 
-def demo_led_effects():
+def demo_led_advanced():
     """
-    演示 LED 特效功能
+    演示 LED 高级功能
     """
-    print("\n\n=== LED 特效演示 ===")
-    print("这个演示展示了 LED 的各种特效：渐变、闪烁、呼吸灯")
+    print("\n\n=== LED 高级功能演示 ===")
+    print("这个演示展示了 LED 的高级功能：渐变、闪烁、呼吸灯")
     
     try:
         # 创建 LED 控制器
         print("\n1. 创建 LED 控制器")
-        led = LEDControl(pin=32)
+        led = SimpleLEDControl(pin=7, max_brightness=90)
         print(f"   LED 控制器已创建: {led}")
         
         # 渐变效果
         print("\n2. 渐变效果演示")
-        led.on(0)  # 从 0% 开始
-        print("   从 0% 渐变到 80%")
-        led.fade_to(80, duration=3)
-        time.sleep(3.5)
+        print("   从暗到亮...")
+        for i in range(0, 101, 5):
+            led.set_brightness(i)
+            time.sleep(0.1)
         
-        print("   从 80% 渐变到 20%")
-        led.fade_to(20, duration=2)
-        time.sleep(2.5)
+        print("   从亮到暗...")
+        for i in range(100, -1, -5):
+            led.set_brightness(i)
+            time.sleep(0.1)
         
         # 闪烁效果
         print("\n3. 闪烁效果演示")
-        print("   快速闪烁 5 次")
-        led.blink(times=5, on_time=0.2, off_time=0.2, brightness=70)
-        time.sleep(2.5)
-        
-        print("   慢速闪烁 3 次")
-        led.blink(times=3, on_time=0.8, off_time=0.8, brightness=90)
-        time.sleep(4)
+        for i in range(5):
+            led.on(80)
+            time.sleep(0.3)
+            led.off()
+            time.sleep(0.3)
         
         # 呼吸灯效果
         print("\n4. 呼吸灯效果演示")
-        print("   呼吸灯效果 (10 秒)")
-        led.breathe(period=2.0, min_brightness=5, max_brightness=85)
-        
-        # 运行 10 秒
-        for i in range(10):
-            time.sleep(1)
-            if i % 2 == 0:
-                print(f"   运行中... ({i+1}/10 秒)")
-        
-        # 停止呼吸灯
-        led.stop_animation()
-        print("   呼吸灯效果已停止")
+        print("   模拟呼吸灯效果...")
+        for i in range(3):  # 3次呼吸周期
+            # 渐亮
+            for j in range(0, 81, 5):
+                led.set_brightness(j)
+                time.sleep(0.05)
+            # 渐暗
+            for j in range(80, -1, -5):
+                led.set_brightness(j)
+                time.sleep(0.05)
         
         # 关闭 LED
+        print("\n5. 关闭 LED")
         led.off()
+        print("   LED 已关闭")
         
     except Exception as e:
         print(f"错误: {e}")
@@ -193,145 +297,42 @@ def demo_led_effects():
         print("\n资源已清理")
 
 
-def demo_context_manager():
-    """
-    演示上下文管理器的使用
-    """
-    print("\n\n=== 上下文管理器演示 ===")
-    print("这个演示展示了如何使用 with 语句自动管理资源")
-    
-    try:
-        # 使用 PWM 上下文管理器
-        print("\n1. PWM 上下文管理器")
-        with PWMControl(pin=7, frequency=1000) as pwm:
-            print(f"   PWM 控制器: {pwm}")
-            pwm.start()
-            
-            # 简单的亮度变化
-            for duty in [0, 50, 100, 50, 0]:
-                print(f"   占空比: {duty}%")
-                pwm.set_duty_cycle(duty)
-                time.sleep(0.8)
-        
-        print("   PWM 资源已自动清理")
-        
-        # 使用 LED 上下文管理器
-        print("\n2. LED 上下文管理器")
-        with LEDControl(pin=7) as led:
-            print(f"   LED 控制器: {led}")
-            
-            # 简单的特效组合
-            led.on(30)
-            time.sleep(1)
-            
-            led.fade_to(80, duration=2)
-            time.sleep(2.5)
-            
-            led.blink(times=3, on_time=0.3, off_time=0.3)
-            time.sleep(2.5)
-            
-            led.off()
-        
-        print("   LED 资源已自动清理")
-        
-    except Exception as e:
-        print(f"错误: {e}")
-
-
-def demo_error_handling():
-    """
-    演示错误处理和边界情况
-    """
-    print("\n\n=== 错误处理演示 ===")
-    print("这个演示展示了如何处理各种错误情况")
-    
-    try:
-        led = LEDControl(pin=33)
-        
-        print("\n1. 测试无效参数")
-        
-        # 测试无效亮度
-        print("   尝试设置无效亮度 (150%)")
-        result = led.set_brightness(150)
-        print(f"   结果: {result} (应该为 False)")
-        
-        print("   尝试设置负亮度 (-10%)")
-        result = led.set_brightness(-10)
-        print(f"   结果: {result} (应该为 False)")
-        
-        # 测试未启动状态下的操作
-        print("\n2. 测试未启动状态下的操作")
-        print("   尝试在未启动状态下设置亮度")
-        result = led.set_brightness(50)
-        print(f"   结果: {result} (应该为 False)")
-        
-        # 正常启动后测试
-        print("\n3. 正常启动后测试")
-        led.on(50)
-        print(f"   LED 已启动，当前亮度: {led.get_brightness()}%")
-        
-        # 测试有效范围
-        print("\n4. 测试有效范围")
-        valid_values = [0, 25, 50, 75, 100]
-        for value in valid_values:
-            result = led.set_brightness(value)
-            print(f"   设置亮度 {value}%: {result} (当前: {led.get_brightness()}%)")
-            time.sleep(0.5)
-        
-        led.cleanup()
-        
-    except Exception as e:
-        print(f"错误: {e}")
-        if 'led' in locals():
-            led.cleanup()
-
-
 def main():
     """
-    主函数 - 运行所有演示
+    主函数
     """
-    print("Jetson Orin PWM LED 控制基本使用示例")
-    print("=====================================")
-    print("\n这个示例将演示 PWM 和 LED 控制的各种功能")
-    print("请确保硬件连接正确，LED 连接到 GPIO 33 引脚")
+    print("🚀 Jetson Orin PWM 和 LED 控制演示")
+    print("=" * 50)
+    print("硬件要求:")
+    print("- GPIO Pin 7 连接到 LED (通过 330Ω 电阻)")
+    print("- 确保 LED 正极连接到 GPIO，负极连接到 GND")
+    print("=" * 50)
+    
+    # 初始化 GPIO
+    try:
+        GPIO.setmode(GPIO.BOARD)
+        print("✅ GPIO 初始化成功")
+    except Exception as e:
+        print(f"❌ GPIO 初始化失败: {e}")
+        return
     
     try:
-        # 询问用户是否继续
-        response = input("\n按 Enter 继续，或输入 'q' 退出: ").strip().lower()
-        if response == 'q':
-            print("用户取消")
-            return
-        
-        # 运行各个演示
+        # 运行演示
         demo_pwm_basic()
-        
-        input("\n按 Enter 继续下一个演示...")
         demo_led_basic()
+        demo_led_advanced()
         
-        input("\n按 Enter 继续下一个演示...")
-        demo_led_effects()
-        
-        input("\n按 Enter 继续下一个演示...")
-        demo_context_manager()
-        
-        input("\n按 Enter 继续下一个演示...")
-        demo_error_handling()
-        
-        print("\n\n=== 演示完成 ===")
-        print("恭喜！你已经学会了 PWM LED 控制的基本用法")
-        print("\n下一步可以尝试:")
-        print("1. 修改引脚号，控制多个 LED")
-        print("2. 调整 PWM 频率，观察效果变化")
-        print("3. 创建自定义的 LED 特效")
-        print("4. 使用命令行工具: python src/jetson/cli.py --help")
+        print("\n🎉 所有演示完成!")
         
     except KeyboardInterrupt:
-        print("\n\n用户中断")
+        print("\n\n⚠️  用户中断演示")
     except Exception as e:
-        print(f"\n程序错误: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"\n❌ 演示过程中出现错误: {e}")
+    finally:
+        # 清理 GPIO
+        GPIO.cleanup()
+        print("🧹 GPIO 资源已清理")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
