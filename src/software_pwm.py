@@ -6,7 +6,7 @@ PWM 控制模块
 
 import time
 import threading
-from gpio import GPIOControl
+from gpio_control import GPIOControl
 
 
 class SoftwarePWM:

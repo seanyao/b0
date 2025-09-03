@@ -18,7 +18,7 @@ b0/
 │   └── hardware.md              # 硬件连接说明
 ├── src/                         # 源代码目录
 │   ├── __init__.py             # 包初始化文件
-│   ├── gpio.py                 # GPIO 控制类
+│   ├── gpio_control.py         # GPIO 控制器类
 │   └── software_pwm.py         # 软件 PWM 控制类
 ├── tools/                       # 测试工具集合
 │   ├── tool_gpio_7.py         # GPIO 测试工具
@@ -66,7 +66,7 @@ python tools/tool_servo_pwm.py
 
 ## 🛠️ 工具详解
 
-### 1. `gpio.py` - GPIO 控制类
+### 1. `gpio_control.py` - GPIO 控制器类
 提供基础的 GPIO 操作功能。
 
 **主要类：**

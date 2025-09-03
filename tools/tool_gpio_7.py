@@ -11,7 +11,7 @@ import time
 # 添加源代码路径
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from gpio import GPIOControl
+from gpio_control import GPIOControl
 
 def main():
     print("=== GPIO 基本功能测试 ===")
