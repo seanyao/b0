@@ -16,6 +16,9 @@ b0/
 ├── README.md                    # 项目说明文档
 ├── docs/                        # 文档目录
 │   └── hardware.md              # 硬件连接说明
+├── src/                         # 源代码目录
+│   ├── __init__.py             # 包初始化文件
+│   └── gpio_control.py         # 通用 GPIO 控制类
 ├── tools/                       # 测试工具集合
 │   ├── tool_gpio_7.py         # GPIO 测试工具
 │   ├── tool_led_pwm.py        # LED PWM 测试工具
@@ -63,15 +66,23 @@ python tools/tool_servo_pwm.py
 
 ## 🛠️ 工具详解
 
-### 1. `tool_gpio_7.py` - GPIO 测试工具
+### 1. `gpio_control.py` - 通用 GPIO 控制类
+提供基础的 GPIO 操作和软件 PWM 功能，被所有测试工具使用。
+
+**主要类：**
+- **`GPIOControl`**: 基础 GPIO 控制，支持输入/输出、高低电平切换
+- **`SoftwarePWM`**: 软件 PWM 生成，支持频率和占空比调节
+
+**特性：**
+- 支持 BOARD 和 BCM 两种引脚编号模式
+- 内置线程管理和资源清理
+- 支持上下文管理器（with 语句）
+- 完整的错误处理和日志记录
+
+### 2. `tool_gpio_7.py` - GPIO 测试工具
 测试 GPIO 引脚的基本功能，验证硬件连接。
 
-**使用方法：**
-```bash
-python tools/tool_gpio_7.py
-```
-
-### 2. `tool_led_pwm.py` - LED PWM 测试工具
+### 3. `tool_led_pwm.py` - LED PWM 测试工具
 测试 LED 的 PWM 控制功能，包括：
 - 不同占空比的亮度控制
 - 舵机频率 PWM (50Hz) 测试
@@ -82,7 +93,7 @@ python tools/tool_gpio_7.py
 python tools/tool_led_pwm.py
 ```
 
-### 3. `tool_servo_pwm.py` - 舵机 PWM 测试工具
+### 4. `tool_servo_pwm.py` - 舵机 PWM 测试工具
 测试舵机的 PWM 控制功能，包括：
 - 角度控制（0°, 90°, 180°）
 - PWM 信号验证
@@ -92,7 +103,7 @@ python tools/tool_led_pwm.py
 python tools/tool_servo_pwm.py
 ```
 
-### 4. `git_cp.py` - 智能 Git 提交助手
+### 5. `git_cp.py` - 智能 Git 提交助手
 自动分析代码变更并生成合适的 commit message，一键执行 add、commit 和 push。
 
 **使用方法：**
@@ -136,6 +147,26 @@ GND → 舵机地线
 详细的硬件连接说明请参考 `docs/hardware.md`。
 
 ## 📚 使用示例
+
+### 使用 GPIO 控制类
+```python
+from src.gpio_control import GPIOControl, SoftwarePWM
+
+# 基础 GPIO 控制
+with GPIOControl(pin=7, mode='BOARD', direction='OUT') as gpio:
+    gpio.high()      # 设置高电平
+    time.sleep(1)
+    gpio.low()       # 设置低电平
+    gpio.toggle()    # 切换状态
+
+# 软件 PWM 控制
+with SoftwarePWM(pin=7, frequency=50) as pwm:
+    pwm.start(25)    # 启动 PWM，25% 占空比
+    time.sleep(2)
+    pwm.set_duty_cycle(75)  # 改变占空比
+    time.sleep(2)
+    pwm.stop()       # 停止 PWM
+```
 
 ### 测试工具使用
 ```bash

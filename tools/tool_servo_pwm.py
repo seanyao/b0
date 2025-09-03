@@ -1,93 +1,38 @@
 #!/usr/bin/env python3
 """
-舵机调试版本 - 添加信号检测
+舵机 PWM 测试 - 验证 GPIO Pin 7 的舵机控制信号
+使用新的 SoftwarePWM 类
 """
 
-import Jetson.GPIO as GPIO
+import sys
+import os
 import time
-import threading
 
-class DebugSoftwarePWM:
-    def __init__(self, pin, frequency):
-        self.pin = pin
-        self.frequency = frequency
-        self.period = 1.0 / frequency
-        self.duty_cycle = 0
-        self.running = False
-        self.thread = None
-        self.pulse_count = 0
-        
-        # Setup GPIO
-        GPIO.setup(self.pin, GPIO.OUT)
-        GPIO.output(self.pin, GPIO.LOW)
-        print(f"GPIO {self.pin} 初始化完成，初始状态: LOW")
-    
-    def start(self, duty_cycle):
-        """Start software PWM with debugging"""
-        self.duty_cycle = duty_cycle
-        self.running = True
-        self.pulse_count = 0
-        self.thread = threading.Thread(target=self._pwm_loop)
-        self.thread.daemon = True
-        self.thread.start()
-        print(f"PWM 启动，占空比: {duty_cycle}%")
-    
-    def ChangeDutyCycle(self, duty_cycle):
-        """Change duty cycle with debugging"""
-        old_duty = self.duty_cycle
-        self.duty_cycle = duty_cycle
-        print(f"占空比变更: {old_duty}% → {duty_cycle}%")
-    
-    def stop(self):
-        """Stop PWM"""
-        self.running = False
-        if self.thread:
-            self.thread.join()
-        GPIO.output(self.pin, GPIO.LOW)
-        print(f"PWM 停止，总脉冲数: {self.pulse_count}")
-    
-    def _pwm_loop(self):
-        """PWM generation loop with debugging"""
-        while self.running:
-            if self.duty_cycle > 0:
-                on_time = self.period * (self.duty_cycle / 100.0)
-                off_time = self.period - on_time
-                
-                # 输出高电平
-                GPIO.output(self.pin, GPIO.HIGH)
-                time.sleep(on_time)
-                
-                # 输出低电平
-                GPIO.output(self.pin, GPIO.LOW)
-                time.sleep(off_time)
-                
-                self.pulse_count += 1
-                
-                # 每50个脉冲打印一次状态
-                if self.pulse_count % 50 == 0:
-                    print(f"已发送 {self.pulse_count} 个脉冲，当前占空比: {self.duty_cycle}%")
-            else:
-                GPIO.output(self.pin, GPIO.LOW)
-                time.sleep(self.period)
+# 添加源代码路径
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-# 测试代码
-def test_servo_debug():
-    SERVO_PIN = 7
-    PWM_FREQUENCY = 50
-    
-    print("=== 舵机调试测试 ===")
+from gpio_control import SoftwarePWM
+
+def main():
+    print("=== 舵机 PWM 信号测试 ===")
+    print("连接: GPIO Pin 7 → 舵机信号线")
+    print("      5V/12V → 舵机电源线")
+    print("      GND → 舵机地线")
+    print("")
     
     try:
-        GPIO.setmode(GPIO.BOARD)
+        # 创建软件 PWM 控制器
+        pwm = SoftwarePWM(pin=7, frequency=50, mode='BOARD')  # 50Hz 舵机标准频率
+        print(f"✅ PWM 控制器创建成功: {pwm}")
         
-        # 创建调试PWM
-        pwm = DebugSoftwarePWM(SERVO_PIN, PWM_FREQUENCY)
+        print("\n开始测试舵机控制信号...")
+        print("按 Ctrl+C 停止测试")
         
-        # 测试不同占空比
+        # 测试不同占空比，对应舵机的不同角度
         test_cycles = [5.0, 7.5, 10.0]  # 0°, 90°, 180°
         
         for duty in test_cycles:
-            print(f"\n--- 测试占空比 {duty}% ---")
+            print(f"\n--- 测试占空比 {duty}% (对应舵机角度) ---")
             pwm.start(duty)
             
             # 持续5秒，观察舵机反应
@@ -96,12 +41,28 @@ def test_servo_debug():
             pwm.stop()
             time.sleep(1)
         
-        print("\n调试测试完成")
+        print("\n=== 舵机测试完成 ===")
+        print("如果舵机能够：")
+        print("✅ 在 5.0% 占空比时转到 0° 位置")
+        print("✅ 在 7.5% 占空比时转到 90° 位置")
+        print("✅ 在 10.0% 占空比时转到 180° 位置")
+        print("")
+        print("那么舵机控制是正常的！")
+        print("如果舵机不动，可能的原因：")
+        print("1. 电源电压不足（舵机需要 5V 或 12V）")
+        print("2. 信号线连接错误")
+        print("3. 舵机损坏")
+        print("4. 舵机参数不匹配")
         
+    except KeyboardInterrupt:
+        print("\n⚠️  用户中断测试")
     except Exception as e:
-        print(f"错误: {e}")
+        print(f"\n❌ 测试过程中出现错误: {e}")
     finally:
-        GPIO.cleanup()
+        # 清理资源
+        if 'pwm' in locals():
+            pwm.cleanup()
+        print("🧹 PWM 资源已清理")
 
 if __name__ == "__main__":
-    test_servo_debug()
+    main()
