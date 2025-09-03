@@ -108,7 +108,7 @@ class SoftwarePWM:
                 self.gpio.low()
                 time.sleep(self.period)
     
-    def cleanup(self):
+    def cleanup(self):_
         """清理资源"""
         self.stop()
         self.gpio.cleanup()

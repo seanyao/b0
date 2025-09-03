@@ -21,7 +21,6 @@ b0/
 │   └── gpio_control.py         # 通用 GPIO 控制类
 ├── tools/                       # 测试工具集合
 │   ├── tool_gpio_7.py         # GPIO 测试工具
-│   ├── tool_led_pwm.py        # LED PWM 测试工具
 │   ├── tool_servo_pwm.py      # 舵机 PWM 测试工具
 │   └── git_cp.py              # 智能 Git 提交助手
 ├── PCA9685ServoControl.py      # 舵机控制代码
@@ -82,18 +81,9 @@ python tools/tool_servo_pwm.py
 ### 2. `tool_gpio_7.py` - GPIO 测试工具
 测试 GPIO 引脚的基本功能，验证硬件连接。
 
-### 3. `tool_led_pwm.py` - LED PWM 测试工具
-测试 LED 的 PWM 控制功能，包括：
-- 不同占空比的亮度控制
-- 舵机频率 PWM (50Hz) 测试
-- 连续变化测试
 
-**使用方法：**
-```bash
-python tools/tool_led_pwm.py
-```
 
-### 4. `tool_servo_pwm.py` - 舵机 PWM 测试工具
+### 3. `tool_servo_pwm.py` - 舵机 PWM 测试工具
 测试舵机的 PWM 控制功能，包括：
 - 角度控制（0°, 90°, 180°）
 - PWM 信号验证
@@ -103,7 +93,7 @@ python tools/tool_led_pwm.py
 python tools/tool_servo_pwm.py
 ```
 
-### 5. `git_cp.py` - 智能 Git 提交助手
+### 4. `git_cp.py` - 智能 Git 提交助手
 自动分析代码变更并生成合适的 commit message，一键执行 add、commit 和 push。
 
 **使用方法：**
@@ -172,21 +162,6 @@ with SoftwarePWM(pin=7, frequency=50) as pwm:
 ```bash
 # 测试 GPIO
 python tools/tool_gpio_7.py
-
-# 测试 LED PWM
-python tools/tool_led_pwm.py
-
-# 测试舵机 PWM
-python tools/tool_servo_pwm.py
-```
-
-### 测试工具使用
-```bash
-# 测试 GPIO
-python tools/tool_gpio_7.py
-
-# 测试 LED PWM
-python tools/tool_led_pwm.py
 
 # 测试舵机 PWM
 python tools/tool_servo_pwm.py
