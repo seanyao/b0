@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 """
 智能 Git 提交脚本
-自动分析代码变更并生成合适的 commit message
+自动分析代码变更并生成合适的 commit message，无需交互确认
 """
 
 import os
-import sys
 import subprocess
-import re
 from pathlib import Path
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 class GitCommitHelper:
     def __init__(self):
@@ -163,117 +161,44 @@ class GitCommitHelper:
         else:
             return f"重构和优化: {total_changes}个文件"
     
-    def commit_and_push(self, message: str = None):
-        """执行提交和推送"""
+    def auto_commit(self):
+        """自动执行提交和推送，无需交互"""
         # 获取变更状态
         changes = self.get_git_status()
         
         if not any(changes.values()):
-            print("没有变更需要提交")
+            print("✅ 工作区干净，无需提交")
             return
         
         # 生成 commit message
-        if not message:
-            message = self.analyze_changes(changes)
+        message = self.analyze_changes(changes)
         
-        print(f"变更分析:")
-        for change_type, files in changes.items():
-            if files:
-                print(f"  {change_type}: {len(files)} 个文件")
-        
-        print(f"\n建议的 commit message: {message}")
-        
-        # 询问用户是否继续
-        user_input = input("\n是否继续提交? (y/N): ").strip().lower()
-        if user_input not in ['y', 'yes']:
-            print("取消提交")
-            return
+        print(f"📝 自动提交变更...")
+        print(f"📋 Commit message: {message}")
         
         try:
             # 添加所有变更
-            print("添加文件...")
+            print("📁 添加文件...")
             self.run_command("git add .")
             
             # 提交
-            print("提交变更...")
+            print("💾 提交变更...")
             self.run_command(f'git commit -m "{message}"')
             
             # 推送
-            print("推送到远程仓库...")
+            print("🚀 推送到远程仓库...")
             self.run_command("git push")
             
-            print("✅ 提交成功!")
+            print("✅ 自动提交成功!")
             
         except Exception as e:
             print(f"❌ 提交失败: {e}")
             return
-    
-    def show_status(self):
-        """显示当前状态"""
-        print("当前 Git 状态:")
-        print("-" * 50)
-        
-        changes = self.get_git_status()
-        for change_type, files in changes.items():
-            if files:
-                print(f"\n{change_type.upper()}:")
-                for file in files:
-                    print(f"  {file}")
-        
-        if not any(changes.values()):
-            print("工作区干净，没有变更")
-    
-    def interactive_mode(self):
-        """交互模式"""
-        while True:
-            print("\n" + "=" * 50)
-            print("Git 提交助手")
-            print("=" * 50)
-            print("1. 查看状态")
-            print("2. 智能提交")
-            print("3. 自定义提交")
-            print("4. 退出")
-            
-            choice = input("\n请选择操作 (1-4): ").strip()
-            
-            if choice == '1':
-                self.show_status()
-            elif choice == '2':
-                self.commit_and_push()
-            elif choice == '3':
-                message = input("请输入 commit message: ").strip()
-                if message:
-                    self.commit_and_push(message)
-                else:
-                    print("commit message 不能为空")
-            elif choice == '4':
-                print("再见!")
-                break
-            else:
-                print("无效选择，请重试")
 
 def main():
-    """主函数"""
-    if len(sys.argv) > 1:
-        # 命令行模式
-        helper = GitCommitHelper()
-        
-        if sys.argv[1] == 'status':
-            helper.show_status()
-        elif sys.argv[1] == 'commit':
-            message = sys.argv[2] if len(sys.argv) > 2 else None
-            helper.commit_and_push(message)
-        elif sys.argv[1] == 'interactive':
-            helper.interactive_mode()
-        else:
-            print("用法:")
-            print("  python git_commit.py status          # 查看状态")
-            print("  python git_commit.py commit [msg]    # 智能提交")
-            print("  python git_commit.py interactive     # 交互模式")
-    else:
-        # 默认交互模式
-        helper = GitCommitHelper()
-        helper.interactive_mode()
+    """主函数 - 直接执行自动提交"""
+    helper = GitCommitHelper()
+    helper.auto_commit()
 
 if __name__ == "__main__":
     main()
