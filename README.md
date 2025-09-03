@@ -16,13 +16,11 @@ b0/
 ├── README.md                    # 项目说明文档
 ├── docs/                        # 文档目录
 │   └── hardware.md              # 硬件连接说明
-├── tools/                       # 测试工具和示例
-│   ├── basic_usage.py          # 基本使用示例
+├── tools/                       # 测试工具集合
 │   ├── tool_gpio_7.py         # GPIO 测试工具
 │   ├── tool_led_pwm.py        # LED PWM 测试工具
 │   ├── tool_servo_pwm.py      # 舵机 PWM 测试工具
-│   ├── git_cp.py              # 智能 Git 提交助手
-│   └── README.md              # 工具使用说明
+│   └── git_cp.py              # 智能 Git 提交助手
 ├── PCA9685ServoControl.py      # 舵机控制代码
 ├── requirements.txt             # Python 依赖
 └── .gitignore                  # Git 忽略文件
@@ -39,10 +37,16 @@ pip install -r requirements.txt
 cat docs/hardware.md
 ```
 
-### 2. 运行基本示例
+### 2. 使用测试工具
 ```bash
-# 运行基本使用示例
-python tools/basic_usage.py
+# GPIO 测试
+python tools/tool_gpio_7.py
+
+# LED PWM 测试
+python tools/tool_led_pwm.py
+
+# 舵机 PWM 测试
+python tools/tool_servo_pwm.py
 ```
 
 ### 3. 使用测试工具
@@ -59,18 +63,7 @@ python tools/tool_servo_pwm.py
 
 ## 🛠️ 工具详解
 
-### 1. `basic_usage.py` - 基本使用示例
-演示 PWM 和 LED 控制的基本功能，包括：
-- PWM 基本控制（启动、停止、占空比调节、频率调节）
-- LED 基本控制（开关、亮度调节）
-- LED 高级功能（渐变、闪烁、呼吸灯效果）
-
-**使用方法：**
-```bash
-python tools/basic_usage.py
-```
-
-### 2. `tool_gpio_7.py` - GPIO 测试工具
+### 1. `tool_gpio_7.py` - GPIO 测试工具
 测试 GPIO 引脚的基本功能，验证硬件连接。
 
 **使用方法：**
@@ -78,7 +71,7 @@ python tools/basic_usage.py
 python tools/tool_gpio_7.py
 ```
 
-### 3. `tool_led_pwm.py` - LED PWM 测试工具
+### 2. `tool_led_pwm.py` - LED PWM 测试工具
 测试 LED 的 PWM 控制功能，包括：
 - 不同占空比的亮度控制
 - 舵机频率 PWM (50Hz) 测试
@@ -89,7 +82,7 @@ python tools/tool_gpio_7.py
 python tools/tool_led_pwm.py
 ```
 
-### 4. `tool_servo_pwm.py` - 舵机 PWM 测试工具
+### 3. `tool_servo_pwm.py` - 舵机 PWM 测试工具
 测试舵机的 PWM 控制功能，包括：
 - 角度控制（0°, 90°, 180°）
 - PWM 信号验证
@@ -99,7 +92,7 @@ python tools/tool_led_pwm.py
 python tools/tool_servo_pwm.py
 ```
 
-### 5. `git_cp.py` - 智能 Git 提交助手
+### 4. `git_cp.py` - 智能 Git 提交助手
 自动分析代码变更并生成合适的 commit message，一键执行 add、commit 和 push。
 
 **使用方法：**
@@ -114,6 +107,8 @@ python tools/git_cp.py
 - 生成简洁有效的 commit message
 - 一键执行 add、commit、push 操作
 - 无需交互确认，直接执行
+
+
 
 ## 📋 硬件要求
 
@@ -142,10 +137,16 @@ GND → 舵机地线
 
 ## 📚 使用示例
 
-### 基本 PWM 控制
-```python
-# 运行基本示例
-python tools/basic_usage.py
+### 测试工具使用
+```bash
+# 测试 GPIO
+python tools/tool_gpio_7.py
+
+# 测试 LED PWM
+python tools/tool_led_pwm.py
+
+# 测试舵机 PWM
+python tools/tool_servo_pwm.py
 ```
 
 ### 测试工具使用
