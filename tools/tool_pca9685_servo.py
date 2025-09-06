@@ -15,14 +15,14 @@ from pca9685_control import PCA9685
 
 def main():
     print("=== PCA9685 舵机控制测试 ===")
-    print("连接: PCA9685 → I2C (Pin 3/5)")
+    print("连接: PCA9685 → I2C 总线 7 (Pin 3/5)")
     print("      舵机 → PCA9685 通道0")
     print("      舵机电源 → 独立5V供电")
     print("")
     
     try:
-        # 创建控制器
-        pca = PCA9685()
+        # 创建控制器 - 明确使用总线 7
+        pca = PCA9685(bus=7)
         print("✅ PCA9685 初始化成功")
         
         # 测试角度序列
