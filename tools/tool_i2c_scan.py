@@ -68,7 +68,7 @@ def test_pca9685(addr=0x40):
     print(f"\n=== 测试 PCA9685 (0x{addr:02X}) ===")
     
     try:
-        bus = smbus.SMBus(1)
+        bus = smbus.SMBus(0)
         
         # 读取模式寄存器
         mode1 = bus.read_byte_data(addr, 0x00)
@@ -91,7 +91,7 @@ def main():
     print("")
     
     # 扫描 I2C 设备
-    devices = scan_i2c_bus(1)
+    devices = scan_i2c_bus(0)
     
     # 检查 PCA9685
     if 0x40 in devices:

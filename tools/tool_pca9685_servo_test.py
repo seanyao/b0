@@ -54,7 +54,7 @@ class PCA9685ServoTester:
     
     def __init__(self):
         """初始化测试器"""
-        self.bus_num = 7
+        self.bus_num = 0
         self.address = 0x40
         self.bus = None
         self.initialized = False
