@@ -11,7 +11,7 @@ import time
 class PCA9685:
     """极简 PCA9685 控制器"""
     
-    def __init__(self, address=0x40, bus=0):
+    def __init__(self, address=0x40, bus=1):
         self.bus = smbus.SMBus(bus)
         self.addr = address
         self._init()
