@@ -18,8 +18,8 @@ from pca9685_control import PCA9685
 
 def main():
     """主函数"""
-    print("=== 简化版LED控制工具 ===")
-    print("控制通道0的LED亮度")
+    print("=== LED闪烁控制工具 ===")
+    print("控制通道0的LED闪烁10次，每次间隔1秒")
     print("")
     
     # 创建PCA9685控制器实例
@@ -28,19 +28,11 @@ def main():
         pca = PCA9685(bus=7, address=0x40)
         print("✅ PCA9685 初始化成功")
         
-        # 设置LED亮度（默认50%）
-        brightness = 50
-        print(f"点亮通道0的LED，亮度{brightness}%")
-        pca.pwm(0, brightness)  # 通道0，亮度50%
-        
-        print("✅ LED已点亮！")
-        print("")
         print("💡 LED连接方式:")
         print("   方式1 (共阴极): PCA9685通道0 → 电阻(220Ω) → LED正极 → LED负极 → GND")
-        print("   方式2 (共阳极): 5V → 电阻(220Ω) → LED正极 → LED负极 → PCA9685通道0")
         print("   注意: 需要串联限流电阻保护LED")
         print("")
-        print("按 Ctrl+C 停止并关闭LED")
+        print("开始闪烁...")
         print("="*50)
         
         # 设置信号处理
@@ -52,9 +44,20 @@ def main():
         
         signal.signal(signal.SIGINT, signal_handler)
         
-        # 持续运行
-        while True:
-            time.sleep(1)
+        # 闪烁10次
+        brightness = 100  # 100%亮度
+        for i in range(10):
+            # 点亮LED
+            pca.pwm(0, brightness)
+            print(f"💡 第{i+1}次闪烁 - LED点亮")
+            time.sleep(0.5)  # 亮0.5秒
+            
+            # 关闭LED
+            pca.off(0)
+            print(f"⚫ 第{i+1}次闪烁 - LED熄灭")
+            time.sleep(0.5)  # 灭0.5秒
+        
+        print("\n✅ 闪烁完成！")
             
     except Exception as e:
         print(f"\n❌ 程序运行错误: {e}")
