@@ -3,6 +3,12 @@
 # GPIO 控制库
 Jetson.GPIO>=2.0.0
 
+# Adafruit CircuitPython 库
+adafruit-circuitpython-servokit>=1.3.0
+adafruit-circuitpython-pca9685>=3.4.0
+adafruit-circuitpython-busdevice>=5.2.0
+adafruit-circuitpython-register>=1.9.0
+
 # 测试框架
 pytest>=7.0.0
 pytest-cov>=4.0.0
