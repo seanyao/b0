@@ -4,7 +4,7 @@ PCA9685 控制模块
 提供极简的 PCA9685 PWM 控制功能
 """
 
-import smbus
+import smbus2 as smbus
 import time
 
 
