@@ -24,6 +24,8 @@ def main():
         # 创建控制器 - 明确使用总线 7
         pca = PCA9685(bus=7)
         print("✅ PCA9685 初始化成功")
+        print(f"   I2C总线: 7, 地址: 0x40, 频率: 50Hz")
+        print(f"   通道范围: 0-15, PWM分辨率: 12位 (0-4095)")
         
         # 测试角度序列
         angles = [0, 45, 90, 135, 180, 90, 0]
@@ -33,21 +35,27 @@ def main():
         
         for angle in angles:
             print(f"→ 设置角度: {angle}°")
+            # 计算并显示PWM值用于调试
+            pulse = int(150 + (angle / 180.0) * 450)
+            print(f"   PWM脉冲值: {pulse} (0°=150, 180°=600)")
             pca.servo(0, angle)  # 通道0
+            print(f"   ✅ PWM信号已发送到通道0")
             time.sleep(2)
         
         print("\n=== 连续扫描测试 ===")
         while True:
             # 0° → 180°
             for angle in range(0, 181, 10):
+                pulse = int(150 + (angle / 180.0) * 450)
                 pca.servo(0, angle)
-                print(f"\r角度: {angle:3d}°", end="", flush=True)
+                print(f"\r角度: {angle:3d}° | PWM: {pulse}", end="", flush=True)
                 time.sleep(0.1)
             
             # 180° → 0°
             for angle in range(180, -1, -10):
+                pulse = int(150 + (angle / 180.0) * 450)
                 pca.servo(0, angle)
-                print(f"\r角度: {angle:3d}°", end="", flush=True)
+                print(f"\r角度: {angle:3d}° | PWM: {pulse}", end="", flush=True)
                 time.sleep(0.1)
         
     except KeyboardInterrupt:
